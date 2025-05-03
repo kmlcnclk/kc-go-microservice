@@ -6,27 +6,27 @@ import (
 	"github.com/spf13/viper"
 )
 
-type AppConfig struct {
-	Port string `yaml:"port" mapstructure:"port"`
-}
+func ReadConfig[T any](configPath ...string) *T {
+	var config T
 
-func Read() *AppConfig {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
+
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("/config")
 	viper.AddConfigPath("./config")
-	viper.AddConfigPath("./config/config.yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
+	viper.AddConfigPath("/config")
+
+	for _, path := range configPath {
+		viper.AddConfigPath(path)
+	}
+
+	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	var appConfig AppConfig
-	err = viper.Unmarshal(&appConfig)
-	if err != nil {
+	if err := viper.Unmarshal(&config); err != nil {
 		panic(fmt.Errorf("fatal error unmarshalling config: %w", err))
 	}
 
-	return &appConfig
+	return &config
 }

@@ -5,11 +5,12 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	"go.uber.org/zap"
+
+	gatewayConfig "github.com/kmlcnclk/kc-oms/gateway/infra/config"
 )
 
-func Start(app *fiber.App, appConfig *config.AppConfig) {
+func Start(app *fiber.App, appConfig *gatewayConfig.AppConfig) {
 
 	go func() {
 		if err := app.Listen(fmt.Sprintf(":%s", appConfig.Port)); err != nil {
