@@ -21,27 +21,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Order struct {
+type CreateOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
+	OrderId       string                 `protobuf:"bytes,1,opt,name=OrderId,proto3" json:"OrderId,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=Status,proto3" json:"Status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Order) Reset() {
-	*x = Order{}
+func (x *CreateOrderResponse) Reset() {
+	*x = CreateOrderResponse{}
 	mi := &file_api_oms_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Order) String() string {
+func (x *CreateOrderResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Order) ProtoMessage() {}
+func (*CreateOrderResponse) ProtoMessage() {}
 
-func (x *Order) ProtoReflect() protoreflect.Message {
+func (x *CreateOrderResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_oms_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,14 +54,21 @@ func (x *Order) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Order.ProtoReflect.Descriptor instead.
-func (*Order) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateOrderResponse.ProtoReflect.Descriptor instead.
+func (*CreateOrderResponse) Descriptor() ([]byte, []int) {
 	return file_api_oms_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Order) GetId() string {
+func (x *CreateOrderResponse) GetOrderId() string {
 	if x != nil {
-		return x.Id
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *CreateOrderResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
 	}
 	return ""
 }
@@ -189,9 +197,10 @@ var File_api_oms_proto protoreflect.FileDescriptor
 
 const file_api_oms_proto_rawDesc = "" +
 	"\n" +
-	"\rapi/oms.proto\x12\x03api\"\x17\n" +
-	"\x05Order\x12\x0e\n" +
-	"\x02Id\x18\x01 \x01(\tR\x02Id\"k\n" +
+	"\rapi/oms.proto\x12\x03api\"G\n" +
+	"\x13CreateOrderResponse\x12\x18\n" +
+	"\aOrderId\x18\x01 \x01(\tR\aOrderId\x12\x16\n" +
+	"\x06Status\x18\x02 \x01(\tR\x06Status\"k\n" +
 	"\x0fCreateOrderItem\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\tR\x02Id\x12\x12\n" +
 	"\x04Name\x18\x02 \x01(\tR\x04Name\x12\x1a\n" +
@@ -201,10 +210,9 @@ const file_api_oms_proto_rawDesc = "" +
 	"\n" +
 	"CustomerId\x18\x01 \x01(\tR\n" +
 	"CustomerId\x12*\n" +
-	"\x05Items\x18\x02 \x03(\v2\x14.api.CreateOrderItemR\x05Items2B\n" +
-	"\fOrderService\x122\n" +
-	"\vCreateOrder\x12\x17.api.CreateOrderRequest\x1a\n" +
-	".api.OrderB'Z%github.com/kmlcnclk/kc-oms/common/apib\x06proto3"
+	"\x05Items\x18\x02 \x03(\v2\x14.api.CreateOrderItemR\x05Items2P\n" +
+	"\fOrderService\x12@\n" +
+	"\vCreateOrder\x12\x17.api.CreateOrderRequest\x1a\x18.api.CreateOrderResponseB'Z%github.com/kmlcnclk/kc-oms/common/apib\x06proto3"
 
 var (
 	file_api_oms_proto_rawDescOnce sync.Once
@@ -220,14 +228,14 @@ func file_api_oms_proto_rawDescGZIP() []byte {
 
 var file_api_oms_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_oms_proto_goTypes = []any{
-	(*Order)(nil),              // 0: api.Order
-	(*CreateOrderItem)(nil),    // 1: api.CreateOrderItem
-	(*CreateOrderRequest)(nil), // 2: api.CreateOrderRequest
+	(*CreateOrderResponse)(nil), // 0: api.CreateOrderResponse
+	(*CreateOrderItem)(nil),     // 1: api.CreateOrderItem
+	(*CreateOrderRequest)(nil),  // 2: api.CreateOrderRequest
 }
 var file_api_oms_proto_depIdxs = []int32{
 	1, // 0: api.CreateOrderRequest.Items:type_name -> api.CreateOrderItem
 	2, // 1: api.OrderService.CreateOrder:input_type -> api.CreateOrderRequest
-	0, // 2: api.OrderService.CreateOrder:output_type -> api.Order
+	0, // 2: api.OrderService.CreateOrder:output_type -> api.CreateOrderResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

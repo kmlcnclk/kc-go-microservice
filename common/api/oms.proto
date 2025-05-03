@@ -4,12 +4,13 @@ option go_package = "github.com/kmlcnclk/kc-oms/common/api";
 
 package api;
 
-message Order {
-  string Id = 1;
+message CreateOrderResponse {
+  string OrderId = 1;
+  string Status = 2;
 }
 
 service OrderService {
-  rpc CreateOrder(CreateOrderRequest) returns (Order);
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
 }
 
 message CreateOrderItem {
