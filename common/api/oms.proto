@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "github.com/kmlcnclk/kc-oms/common/api";
+
+package api;
+
+message Order {
+  string Id = 1;
+}
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order);
+}
+
+message CreateOrderItem {
+  string Id = 1;
+  string Name = 2;
+  int32 Quantity = 3;
+  string PriceId = 4;
+}
+
+message CreateOrderRequest {
+  string CustomerId = 1;
+  repeated CreateOrderItem Items = 2;
+}
