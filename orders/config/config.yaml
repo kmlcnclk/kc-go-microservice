@@ -1,1 +1,5 @@
 port: 50051
+rabbitmq_url: "amqp://guest:guest@localhost:5672/"
+rabbitmq_queue_name: order-queue
+rabbitmq_exchange_name: order-exchange
+rabbitmq_routingKey: order-routing-key

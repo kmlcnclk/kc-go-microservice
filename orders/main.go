@@ -5,6 +5,7 @@ import (
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
+	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
@@ -26,9 +27,18 @@ func main() {
 		zap.L().Fatal("Failed to create TCP listener: ", zap.Error(err))
 	}
 
+	rmq, err := rabbitmq.NewRabbitMQ(appConfig.RabbitMQURL)
+	if err != nil {
+		zap.L().Fatal("Failed to create RabbitMQ instance: ", zap.Error(err))
+	}
+
+	if err := rmq.Build(appConfig.RabbitMQQueueName, appConfig.RabbitMQExchangeName, appConfig.RabbitMQRoutingKey); err != nil {
+		zap.L().Error("Failed to build queue/exchange", zap.Error(err))
+	}
+
 	zap.L().Info("gRPC server listening on port: ", zap.String("port", appConfig.Port))
 
-	service := service.NewOrderService()
+	service := service.NewOrderService(rmq, appConfig.RabbitMQExchangeName, appConfig.RabbitMQRoutingKey)
 
 	app.NewGrpcHandler(grpcServer, service)
 

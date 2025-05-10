@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/spf13/viper v1.20.1
+	github.com/streadway/amqp v1.1.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.72.0
 	google.golang.org/protobuf v1.36.5
