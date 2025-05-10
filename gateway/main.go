@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	omspb "github.com/kmlcnclk/kc-oms/common/api"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/gateway/app/healthcheck"
@@ -14,11 +15,42 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
+	"github.com/kmlcnclk/kc-oms/common/pkg/discovery/consul"
+)
+
+var (
+	serviceName = "gateway"
+	httpAddr    = ":8080"
+	consulAddr  = "localhost:50053"
 )
 
 func main() {
 	appConfig := config.ReadConfig[gatewayConfig.AppConfig]()
 	defer zap.L().Sync()
+
+	registry, err := consul.NewRegistry(consulAddr, serviceName)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	instanceID := discovery.GenerateInstanceID(serviceName)
+	if err := registry.Register(ctx, instanceID, serviceName, httpAddr); err != nil {
+		panic(err)
+	}
+
+	go func() {
+		for {
+			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
+				log.Fatal("failed to health check")
+			}
+			time.Sleep(time.Second * 1)
+		}
+	}()
+
+	defer registry.Deregister(ctx, instanceID, serviceName)
 
 	zap.L().Info("app starting...")
 
@@ -37,8 +69,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	orderServiceClient := omspb.NewOrderServiceClient(conn)
-	orderCreateHandler := order.NewCreateOrderHandler(orderServiceClient)
+	orderCreateHandler := order.NewCreateOrderHandler(registry)
 
 	healthcheckHandler := healthcheck.NewHealthCheckHandler()
 
