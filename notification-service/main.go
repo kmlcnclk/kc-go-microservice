@@ -27,6 +27,10 @@ func main() {
 	}
 	defer mq.Close()
 
+	if err := mq.Build(appConfig.RabbitOrderQueue, appConfig.RabbitOrderExchange, appConfig.RabbitOrderRoutingKey); err != nil {
+		zap.L().Error("Failed to build queue/exchange", zap.Error(err))
+	}
+
 	zap.L().Info("RabbitMQ connected")
 
 	messages, err := mq.Consume(appConfig.RabbitOrderQueue, false)
