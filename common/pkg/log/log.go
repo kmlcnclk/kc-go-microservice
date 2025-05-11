@@ -1,6 +1,8 @@
 package log
 
 import (
+	"fmt"
+	"hash/fnv"
 	"os"
 
 	"go.uber.org/zap"
@@ -9,7 +11,19 @@ import (
 
 var logger *zap.Logger
 
-func init() {
+func hashToColorCode(name string) int {
+	h := fnv.New32a()
+	h.Write([]byte(name))
+	return int(33 + (h.Sum32() % 198))
+}
+
+func coloredNameEncoder(name string, enc zapcore.PrimitiveArrayEncoder) {
+	colorCode := hashToColorCode(name)
+	colored := fmt.Sprintf("\033[1;38;5;%dm%s\033[0m", colorCode, name)
+	enc.AppendString(colored)
+}
+
+func Init(serviceName string) {
 	encoderCfg := zapcore.EncoderConfig{
 		TimeKey:        "timestamp",
 		LevelKey:       "level",
@@ -22,6 +36,7 @@ func init() {
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
+		EncodeName:     coloredNameEncoder,
 	}
 
 	config := zap.Config{
@@ -39,7 +54,6 @@ func init() {
 		},
 	}
 
-	logger = zap.Must(config.Build())
-
+	logger = zap.Must(config.Build()).Named(serviceName)
 	zap.ReplaceGlobals(logger)
 }

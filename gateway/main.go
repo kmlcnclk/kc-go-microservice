@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
+	"github.com/kmlcnclk/kc-oms/common/pkg/log"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/kmlcnclk/kc-oms/gateway/app/healthcheck"
@@ -31,6 +31,7 @@ var (
 
 func main() {
 	appConfig := config.ReadConfig[gatewayConfig.AppConfig]()
+	log.Init("[GATEWAY-SERVICE]")
 	defer zap.L().Sync()
 
 	tp, err := tracer.SetGlobalTracer(context.TODO(), serviceName, jaegerAddr)
@@ -52,7 +53,7 @@ func main() {
 	go func() {
 		for {
 			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
-				log.Fatal("failed to health check")
+				zap.L().Error("failed to health check", zap.Error(err))
 			}
 			time.Sleep(time.Second * 1)
 		}

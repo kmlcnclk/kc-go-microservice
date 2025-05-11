@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	omspb "github.com/kmlcnclk/kc-oms/common/api"
+	"github.com/kmlcnclk/kc-oms/common/pkg/log"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
@@ -25,6 +26,7 @@ var (
 
 func main() {
 	appConfig := config.ReadConfig[notificationConfig.AppConfig]()
+	log.Init("[NOTIFICATION-SERVICE]")
 	defer zap.L().Sync()
 
 	_, err := tracer.SetGlobalTracer(context.Background(), serviceName, jaegerAddr)

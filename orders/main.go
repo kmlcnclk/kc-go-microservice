@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
+	"github.com/kmlcnclk/kc-oms/common/pkg/log"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
@@ -29,6 +30,7 @@ var (
 
 func main() {
 	appConfig := config.ReadConfig[orderConfig.AppConfig]()
+	log.Init("[ORDER-SERVICE]")
 	defer zap.L().Sync()
 
 	tp, err := tracer.SetGlobalTracer(context.TODO(), serviceName, jaegerAddr)
