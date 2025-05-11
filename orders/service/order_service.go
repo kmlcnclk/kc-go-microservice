@@ -5,6 +5,7 @@ import (
 
 	omspb "github.com/kmlcnclk/kc-oms/common/api"
 	rabbitmq "github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 )
 
@@ -25,6 +26,10 @@ func NewOrderService(rabbitmq *rabbitmq.RabbitMQ, mqExchangeName, mqRoutingKey s
 
 func (s *OrderService) CreateOrder(ctx context.Context, req *omspb.CreateOrderRequest) (*omspb.CreateOrderResponse, error) {
 	// TODO: Implement the order creation logic here
+
+	tr := otel.Tracer("orders")
+	ctx, messageSpan := tr.Start(ctx, "OrdersService.CreateOrder")
+	defer messageSpan.End()
 
 	err := s.rabbitmq.Publish(
 		s.mqExchangeName,

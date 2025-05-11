@@ -61,7 +61,7 @@ func main() {
 			zap.L().Info("Received message", zap.String("body", string(msg.Body)))
 
 			messageCtx := tracer.ExtractTraceFromAMQPHeaders(msg.Headers)
-			_, span := tp.Start(messageCtx, "notification-service.processOrder")
+			_, span := tp.Start(messageCtx, "NotificationService.CreateOrder")
 
 			var order omspb.CreateOrderResponse
 			if err := json.Unmarshal(msg.Body, &order); err != nil {

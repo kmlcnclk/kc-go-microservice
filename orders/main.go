@@ -9,6 +9,7 @@ import (
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
@@ -30,7 +31,7 @@ func main() {
 	appConfig := config.ReadConfig[orderConfig.AppConfig]()
 	defer zap.L().Sync()
 
-	_, err := tracer.SetGlobalTracer(context.TODO(), serviceName, jaegerAddr)
+	tp, err := tracer.SetGlobalTracer(context.TODO(), serviceName, jaegerAddr)
 	if err != nil {
 		zap.L().Fatal("failed to set global tracer", zap.Error(err))
 	}
@@ -60,11 +61,11 @@ func main() {
 	}()
 
 	grpcServer := grpc.NewServer(
-	// grpc.StatsHandler(
-	// 	otelgrpc.NewServerHandler(
-	// 		otelgrpc.WithTracerProvider(tp),
-	// 	),
-	// ),
+		grpc.StatsHandler(
+			otelgrpc.NewServerHandler(
+				otelgrpc.WithTracerProvider(tp),
+			),
+		),
 	)
 
 	listener, err := net.Listen("tcp", grpcAddr)
