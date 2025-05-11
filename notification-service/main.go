@@ -12,7 +12,6 @@ import (
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
-	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	notificationConfig "github.com/kmlcnclk/kc-oms/notification-service/infra/config"
 	"go.opentelemetry.io/otel"

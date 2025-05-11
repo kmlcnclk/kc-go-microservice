@@ -7,7 +7,6 @@ import (
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	"github.com/kmlcnclk/kc-oms/common/pkg/log"
-	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"

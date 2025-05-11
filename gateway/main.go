@@ -7,7 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	"github.com/kmlcnclk/kc-oms/common/pkg/log"
-	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/kmlcnclk/kc-oms/gateway/app/healthcheck"
 	"github.com/kmlcnclk/kc-oms/gateway/app/order"
