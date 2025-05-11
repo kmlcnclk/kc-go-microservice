@@ -20,8 +20,8 @@ import (
 
 var (
 	serviceName = "orders"
-	consulAddr  = "localhost:50052"
-	grpcAddr    = "localhost:50051"
+	consulAddr  = "localhost:8500"
+	grpcAddr    = "localhost:50052"
 )
 
 func main() {

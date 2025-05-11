@@ -23,7 +23,7 @@ import (
 var (
 	serviceName = "gateway"
 	httpAddr    = ":8080"
-	consulAddr  = "localhost:50053"
+	consulAddr  = "localhost:8500"
 )
 
 func main() {
