@@ -31,6 +31,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, req *omspb.CreateOrderRe
 		s.mqRoutingKey,
 		[]byte(`{"OrderId": "123456", "Status": "created"}`),
 		"application/json",
+		ctx,
 	)
 	if err != nil {
 		zap.L().Info("Failed to publish message to RabbitMQ", zap.Error(err))

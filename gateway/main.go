@@ -8,10 +8,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
+	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/kmlcnclk/kc-oms/gateway/app/healthcheck"
 	"github.com/kmlcnclk/kc-oms/gateway/app/order"
 	gatewayConfig "github.com/kmlcnclk/kc-oms/gateway/infra/config"
 	"github.com/kmlcnclk/kc-oms/gateway/infra/server"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -24,11 +26,17 @@ var (
 	serviceName = "gateway"
 	httpAddr    = ":8080"
 	consulAddr  = "localhost:8500"
+	jaegerAddr  = "localhost:4318"
 )
 
 func main() {
 	appConfig := config.ReadConfig[gatewayConfig.AppConfig]()
 	defer zap.L().Sync()
+
+	tp, err := tracer.SetGlobalTracer(context.TODO(), serviceName, jaegerAddr)
+	if err != nil {
+		zap.L().Fatal("failed to set global tracer", zap.Error(err))
+	}
 
 	registry, err := consul.NewRegistry(consulAddr, serviceName)
 	if err != nil {
@@ -62,16 +70,26 @@ func main() {
 	})
 
 	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	opts = append(opts,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(
+			otelgrpc.NewClientHandler(
+				otelgrpc.WithTracerProvider(tp),
+			),
+		),
+	)
 	conn, err := grpc.NewClient(appConfig.OrderServiceAddress, opts...)
+
 	if err != nil {
 		zap.L().Fatal("failed to connect to order service", zap.Error(err))
 	}
 	defer conn.Close()
 
-	orderCreateHandler := order.NewCreateOrderHandler(registry)
+	orderCreateHandler := order.NewCreateOrderHandler(registry, tp)
 
 	healthcheckHandler := healthcheck.NewHealthCheckHandler()
+
+	server.Middleware(app)
 
 	server.InitRouters(app, healthcheckHandler, orderCreateHandler)
 

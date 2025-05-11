@@ -1,8 +1,10 @@
 package rabbitmq
 
 import (
+	"context"
 	"fmt"
 
+	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/streadway/amqp"
 )
 
@@ -52,13 +54,16 @@ func (r *RabbitMQ) BindQueue(queueName, exchangeName, routingKey string) error {
 }
 
 // Publish sends a message to a specific exchange with a routing key
-func (r *RabbitMQ) Publish(exchange, routingKey string, body []byte, contentType string) error {
+func (r *RabbitMQ) Publish(exchange, routingKey string, body []byte, contentType string, ctx context.Context) error {
 	return r.channel.Publish(
 		exchange,
 		routingKey,
 		true,
 		false,
 		amqp.Publishing{
+			Headers: amqp.Table{
+				"traceparent": tracer.TraceparentHeaderFromContext(ctx),
+			},
 			ContentType:  contentType,
 			DeliveryMode: amqp.Persistent,
 			Body:         body,

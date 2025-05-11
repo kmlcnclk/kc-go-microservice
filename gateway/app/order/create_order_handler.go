@@ -5,16 +5,20 @@ import (
 
 	omspb "github.com/kmlcnclk/kc-oms/common/api"
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
 type CreateOrderHandler struct {
 	registry discovery.Registry
+	tp       trace.TracerProvider
 }
 
-func NewCreateOrderHandler(registry discovery.Registry) *CreateOrderHandler {
+func NewCreateOrderHandler(registry discovery.Registry, tp trace.TracerProvider) *CreateOrderHandler {
 	return &CreateOrderHandler{
 		registry: registry,
+		tp:       tp,
 	}
 
 }
@@ -22,7 +26,11 @@ func NewCreateOrderHandler(registry discovery.Registry) *CreateOrderHandler {
 func (h *CreateOrderHandler) Handle(ctx context.Context, req *omspb.CreateOrderRequest) (*omspb.CreateOrderResponse, error) {
 	zap.L().Info("Creating order", zap.String("order_id", req.CustomerId))
 
-	conn, err := discovery.ServiceConnection(context.Background(), "orders", h.registry)
+	tr := otel.Tracer("gateway")
+	ctx, messageSpan := tr.Start(ctx, "GatewayService.CreateOrderHandler.Handle")
+	defer messageSpan.End()
+
+	conn, err := discovery.ServiceConnection(context.Background(), "orders", h.registry, h.tp)
 	if err != nil {
 		zap.L().Error("Failed to dial server", zap.Error(err))
 	}

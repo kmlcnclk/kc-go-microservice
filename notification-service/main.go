@@ -8,16 +8,29 @@ import (
 	"syscall"
 
 	omspb "github.com/kmlcnclk/kc-oms/common/api"
+	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
+
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	_ "github.com/kmlcnclk/kc-oms/common/pkg/log"
 	"github.com/kmlcnclk/kc-oms/common/pkg/rabbitmq"
 	notificationConfig "github.com/kmlcnclk/kc-oms/notification-service/infra/config"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
+)
+
+var (
+	serviceName = "notification-service"
+	jaegerAddr  = "localhost:4318"
 )
 
 func main() {
 	appConfig := config.ReadConfig[notificationConfig.AppConfig]()
 	defer zap.L().Sync()
+
+	_, err := tracer.SetGlobalTracer(context.Background(), serviceName, jaegerAddr)
+	if err != nil {
+		zap.L().Fatal("failed to set global tracer", zap.Error(err))
+	}
 
 	zap.L().Info("notification-service starting...")
 
@@ -38,12 +51,17 @@ func main() {
 		zap.L().Fatal("Failed to start consuming messages", zap.Error(err))
 	}
 
+	tp := otel.Tracer("orders")
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
 		for msg := range messages {
 			zap.L().Info("Received message", zap.String("body", string(msg.Body)))
+
+			messageCtx := tracer.ExtractTraceFromAMQPHeaders(msg.Headers)
+			_, span := tp.Start(messageCtx, "notification-service.processOrder")
 
 			var order omspb.CreateOrderResponse
 			if err := json.Unmarshal(msg.Body, &order); err != nil {
@@ -65,6 +83,8 @@ func main() {
 				zap.L().Warn("Order processing failed, sending to DLQ")
 				msg.Nack(false, false)
 			}
+
+			span.End()
 		}
 	}()
 

@@ -2,9 +2,11 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	omspb "github.com/kmlcnclk/kc-oms/common/api"
 	"github.com/kmlcnclk/kc-oms/orders/service"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -27,6 +29,11 @@ func (g *GrpcHandler) CreateOrder(ctx context.Context, req *omspb.CreateOrderReq
 
 	// TODO: Process the order creation logic here
 	// For example, you can call a service to create the order
+	span := trace.SpanFromContext(ctx)
+	span.AddEvent(fmt.Sprintf("GetOrder: %v", "asdasdas"))
+
+	// ctx, messageSpan := tr.Start(ctx, "OrderService.CreateOrder")
+	// defer messageSpan.End()
 
 	response, err := g.service.CreateOrder(ctx, req)
 	if err != nil {
