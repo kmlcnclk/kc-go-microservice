@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/gofiber/contrib/otelfiber v1.0.10
 	github.com/gofiber/fiber/v2 v2.52.6
+	github.com/sony/gobreaker v1.0.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0
 	go.opentelemetry.io/otel/trace v1.35.0
 	go.uber.org/zap v1.27.0
@@ -21,9 +22,10 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/sony/gobreaker v1.0.0 // indirect
+	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.61.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect

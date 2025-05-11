@@ -7,6 +7,7 @@ toolchain go1.23.9
 require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/hashicorp/consul/api v1.31.2
+	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/viper v1.20.1
 	github.com/streadway/amqp v1.1.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0

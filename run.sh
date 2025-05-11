@@ -39,6 +39,10 @@ EOF
 
 echo "✅ Created Procfile"
 
+# Start docker-compose
+echo "🐳 Starting Docker containers..."
+docker-compose up -d
+
 # Check/install overmind
 if ! command -v overmind &> /dev/null; then
   echo "🔧 Installing overmind..."
