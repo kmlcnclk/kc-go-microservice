@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	circuitbreaker "github.com/kmlcnclk/kc-oms/common/pkg/circuit-breaker"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
 	"github.com/kmlcnclk/kc-oms/common/pkg/log"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
@@ -89,7 +90,9 @@ func main() {
 
 	healthcheckHandler := healthcheck.NewHealthCheckHandler()
 
-	server.Middleware(app)
+	cb := circuitbreaker.DefaultCircuitBreaker()
+
+	server.Middleware(app, cb)
 
 	server.InitRouters(app, healthcheckHandler, orderCreateHandler)
 

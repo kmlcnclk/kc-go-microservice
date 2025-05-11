@@ -23,6 +23,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.61.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
