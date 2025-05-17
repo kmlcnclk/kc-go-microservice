@@ -24,6 +24,39 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-server
+    command: redis-server --requirepass 123456 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - redis-network
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/db
+    environment:
+      - REDIS_URI=redis://default:123456@redis-server:6379
+    restart: unless-stopped
+    networks:
+      - redis-network
+    depends_on:
+      - redis
 
 volumes:
   rabbitmq_data:
+  redis_data:  
+  redisinsight_data:
+
+networks:
+  redis-network:
+    driver: bridge
+

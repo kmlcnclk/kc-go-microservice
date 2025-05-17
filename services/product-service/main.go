@@ -5,18 +5,20 @@ import (
 	"net"
 	"time"
 
+	pb "github.com/kmlcnclk/kc-oms/common/api/product"
 	"github.com/kmlcnclk/kc-oms/common/pkg/config"
-	"github.com/kmlcnclk/kc-oms/common/pkg/log"
-	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery/consul"
+	"github.com/kmlcnclk/kc-oms/common/pkg/log"
+	"github.com/kmlcnclk/kc-oms/common/pkg/redis"
+	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/kmlcnclk/kc-oms/services/product-service/app"
 	productConfig "github.com/kmlcnclk/kc-oms/services/product-service/infra/config"
 	"github.com/kmlcnclk/kc-oms/services/product-service/service"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -27,7 +29,7 @@ var (
 )
 
 func main() {
-	_ = config.ReadConfig[productConfig.AppConfig]()
+	appConfig := config.ReadConfig[productConfig.AppConfig]()
 	log.Init("[PRODUCT-SERVICE]")
 	defer zap.L().Sync()
 
@@ -60,11 +62,23 @@ func main() {
 		}
 	}()
 
+	rdb := redis.NewRedis(appConfig.REDIS_ADDR, appConfig.REDIS_PASS)
+
 	grpcServer := grpc.NewServer(
 		grpc.StatsHandler(
 			otelgrpc.NewServerHandler(
 				otelgrpc.WithTracerProvider(tp),
 			),
+		),
+		grpc.UnaryInterceptor(
+			redis.RedisCacheInterceptor(rdb, time.Hour, map[string]redis.CacheConfig{
+				"/api.ProductService/GetAllProducts": {
+					Key: "all_products",
+					NewMessage: func() proto.Message {
+						return &pb.GetAllProductsResponse{}
+					},
+				},
+			}),
 		),
 	)
 

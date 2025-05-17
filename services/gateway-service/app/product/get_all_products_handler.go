@@ -38,7 +38,7 @@ func (h *GetAllProductsHandler) Handle(ctx context.Context, req *pb.GetAllProduc
 		return nil, err
 	}
 
-	zap.L().Info("All products created returned!")
+	zap.L().Info("All products successfully returned!")
 
 	return res, nil
 }
