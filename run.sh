@@ -11,7 +11,7 @@ fi
 source ~/.zshrc
 
 # Create .air.toml for each service
-for dir in gateway orders notification-service; do
+for dir in services/gateway-service services/order-service services/notification-service services/product-service; do
   echo "📁 Setting up $dir/.air.toml"
   mkdir -p "$dir/tmp"
   cat > "$dir/.air.toml" <<EOF
