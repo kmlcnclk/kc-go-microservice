@@ -1,4 +1,0 @@
-rabbitmq_url: "amqp://guest:guest@localhost:5672/"
-rabbitmq_order_queue: order-queue
-rabbitmq_order_exchange: order-exchange
-rabbitmq_order_routing_key: order-routing-key

@@ -1,0 +1,2 @@
+port: 8080
+order_service_address: localhost:50051
