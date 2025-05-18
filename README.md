@@ -1,1 +1,1 @@
-KC - OMS - GO - Microservice
+KC - GO - Microservice
