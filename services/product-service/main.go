@@ -10,11 +10,13 @@ import (
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery/consul"
 	"github.com/kmlcnclk/kc-oms/common/pkg/log"
+	"github.com/kmlcnclk/kc-oms/common/pkg/mongodb"
 	"github.com/kmlcnclk/kc-oms/common/pkg/redis"
 	tracer "github.com/kmlcnclk/kc-oms/common/pkg/tracer"
 	"github.com/kmlcnclk/kc-oms/services/product-service/app"
 	productConfig "github.com/kmlcnclk/kc-oms/services/product-service/infra/config"
-	"github.com/kmlcnclk/kc-oms/services/product-service/service"
+	"github.com/kmlcnclk/kc-oms/services/product-service/repositories"
+	"github.com/kmlcnclk/kc-oms/services/product-service/services"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -62,6 +64,8 @@ func main() {
 		}
 	}()
 
+	mongoDB := mongodb.NewMongoDB(appConfig.MONGO_URI, appConfig.MONGO_DB)
+
 	rdb := redis.NewRedis(appConfig.REDIS_ADDR, appConfig.REDIS_PASS)
 
 	grpcServer := grpc.NewServer(
@@ -89,7 +93,8 @@ func main() {
 
 	zap.L().Info("gRPC server listening on port: ", zap.String("port", grpcAddr))
 
-	service := service.NewProductService()
+	repository := repositories.NewProductRepository(mongoDB, appConfig.MONGO_COLLECTION)
+	service := services.NewProductService(repository)
 
 	app.NewGrpcHandler(grpcServer, service)
 

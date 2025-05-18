@@ -14,10 +14,7 @@ import (
 	"github.com/kmlcnclk/kc-oms/services/gateway-service/app/product"
 	gatewayConfig "github.com/kmlcnclk/kc-oms/services/gateway-service/infra/config"
 	"github.com/kmlcnclk/kc-oms/services/gateway-service/infra/server"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery/consul"
@@ -70,22 +67,6 @@ func main() {
 		WriteTimeout: 3 * time.Second,
 		Concurrency:  256 * 1024,
 	})
-
-	var opts []grpc.DialOption
-	opts = append(opts,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithStatsHandler(
-			otelgrpc.NewClientHandler(
-				otelgrpc.WithTracerProvider(tp),
-			),
-		),
-	)
-	conn, err := grpc.NewClient(appConfig.OrderServiceAddress, opts...)
-
-	if err != nil {
-		zap.L().Fatal("failed to connect to order service", zap.Error(err))
-	}
-	defer conn.Close()
 
 	orderCreateHandler := order.NewCreateOrderHandler(registry, tp)
 	productGetAllProductsHandler := product.NewGetAllProductsHandler(registry, tp)

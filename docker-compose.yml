@@ -50,13 +50,29 @@ services:
       - redis-network
     depends_on:
       - redis
-
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - mongo-network
+      
 volumes:
   rabbitmq_data:
   redis_data:  
   redisinsight_data:
+  mongodb_data:
 
 networks:
   redis-network:
+    driver: bridge
+  mongo-network:
     driver: bridge
 

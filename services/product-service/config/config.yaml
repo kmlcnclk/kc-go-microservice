@@ -1,3 +1,6 @@
 port: 50052
 redis_addr: localhost:6379
 redis_pass: 123456
+mongo_uri: mongodb://root:123456@localhost:27017
+mongo_db: kc-go-microservice
+mongo_collection: products

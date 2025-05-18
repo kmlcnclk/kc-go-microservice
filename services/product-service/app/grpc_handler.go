@@ -4,10 +4,14 @@ import (
 	"context"
 
 	pb "github.com/kmlcnclk/kc-oms/common/api/product"
-	"github.com/kmlcnclk/kc-oms/services/product-service/service"
+	service "github.com/kmlcnclk/kc-oms/services/product-service/services"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
+
+type GrpcHandlerInterface interface {
+	GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error)
+}
 
 type GrpcHandler struct {
 	pb.UnimplementedProductServiceServer
@@ -25,7 +29,7 @@ func NewGrpcHandler(grpcServer *grpc.Server, service *service.ProductService) {
 func (g *GrpcHandler) GetAllProducts(ctx context.Context, req *pb.GetAllProductsRequest) (*pb.GetAllProductsResponse, error) {
 	zap.L().Info("All products requested")
 
-	response, err := g.service.GetAllProducts(ctx, req)
+	response, err := g.service.GetAllProducts(ctx)
 	if err != nil {
 		zap.L().Error("Failed to fetch all products", zap.Error(err))
 		return nil, err
