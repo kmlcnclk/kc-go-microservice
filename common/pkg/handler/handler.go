@@ -9,9 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type Request any
-type Response any
-
 type HandlerInterface[R Request, Res Response] interface {
 	Handle(ctx context.Context, req *R) (*Res, error)
 }
@@ -21,19 +18,19 @@ func Handle[R Request, Res Response](handler HandlerInterface[R, Res]) fiber.Han
 		var req R
 
 		if err := c.BodyParser(&req); err != nil && !errors.Is(err, fiber.ErrUnprocessableEntity) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: err.Error()})
 		}
 
 		if err := c.ParamsParser(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: err.Error()})
 		}
 
 		if err := c.QueryParser(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: err.Error()})
 		}
 
 		if err := c.ReqHeaderParser(&req); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{Error: err.Error()})
 		}
 
 		// Log the parsed request to the console
@@ -45,7 +42,7 @@ func Handle[R Request, Res Response](handler HandlerInterface[R, Res]) fiber.Han
 		res, err := handler.Handle(ctx, &req)
 		if err != nil {
 			zap.L().Error("Failed to handle request", zap.Error(err))
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{Error: err.Error()})
 		}
 
 		return c.JSON(res)

@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/kmlcnclk/kc-oms/common/api/order"
 	"github.com/kmlcnclk/kc-oms/common/pkg/discovery"
+	"github.com/kmlcnclk/kc-oms/common/pkg/handler"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -22,7 +23,7 @@ func NewCreateOrderHandler(registry discovery.Registry, tp trace.TracerProvider)
 
 }
 
-func (h *CreateOrderHandler) Handle(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
+func (h *CreateOrderHandler) Handle(ctx context.Context, req *pb.CreateOrderRequest) (*handler.SuccessResponse, error) {
 	zap.L().Info("Creating order", zap.String("order_id", req.CustomerId))
 
 	conn, err := discovery.ServiceConnection(ctx, "orders", h.registry, h.tp)
@@ -40,5 +41,7 @@ func (h *CreateOrderHandler) Handle(ctx context.Context, req *pb.CreateOrderRequ
 
 	zap.L().Info("Order created successfully", zap.String("order_id", req.CustomerId))
 
-	return createdOrder, nil
+	return &handler.SuccessResponse{
+		Data: createdOrder,
+	}, nil
 }

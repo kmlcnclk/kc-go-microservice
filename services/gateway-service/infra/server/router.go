@@ -14,8 +14,8 @@ func InitRouters(app *fiber.App, healthcheckHandler *healthcheck.HealthCheckHand
 
 	app.Get("/healthcheck", handler.Handle[healthcheck.HealthCheckRequest, healthcheck.HealthCheckResponse](healthcheckHandler))
 
-	app.Post("/order", handler.Handle[orderPB.CreateOrderRequest, orderPB.CreateOrderResponse](orderCreateHandler))
+	app.Post("/order", handler.Handle[orderPB.CreateOrderRequest, handler.SuccessResponse](orderCreateHandler))
 
-	app.Get("/product", handler.Handle[productPB.GetAllProductsRequest, productPB.GetAllProductsResponse](productGetAllProductsHandler))
+	app.Get("/product", handler.Handle[productPB.GetAllProductsRequest, handler.SuccessResponse](productGetAllProductsHandler))
 
 }

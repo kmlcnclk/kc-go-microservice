@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/kmlcnclk/kc-oms/common/pkg/handler"
 	"github.com/sony/gobreaker"
 	"go.uber.org/zap"
 )
@@ -16,22 +17,37 @@ func CircuitBreakerMiddleware(cb *gobreaker.CircuitBreaker, excludePaths []strin
 				return c.Next()
 			}
 		}
+
 		zap.L().Info("Circuit breaker middleware", zap.String("path", path))
-		// Wrap in circuit breaker
-		// _, err := cb.Execute(func() (interface{}, error) {
-		// 	return nil, c.Next()
-		// })
+
+		// Execute wrapped logic inside circuit breaker
 		_, err := cb.Execute(func() (interface{}, error) {
+			// Call next handler
 			err := c.Next()
 
-			// Consider specific status codes as failures
+			// Log and consider server errors as breaker failures
 			if c.Response().StatusCode() >= 500 {
 				return nil, fiber.ErrInternalServerError
 			}
-
 			return nil, err
 		})
 
-		return err
+		// Check if circuit is open or request failed
+		if err != nil {
+			if err == gobreaker.ErrOpenState {
+				zap.L().Warn("Circuit breaker is open", zap.String("path", path))
+				return c.Status(fiber.StatusServiceUnavailable).JSON(handler.ErrorResponse{
+					Error: "Service temporarily unavailable. Please try again later.",
+				},
+				)
+			}
+
+			zap.L().Error("Circuit breaker execution failed", zap.String("path", path), zap.Error(err))
+			return c.Status(fiber.StatusInternalServerError).JSON(handler.ErrorResponse{
+				Error: "Internal server error. Please try again later.",
+			})
+		}
+
+		return nil
 	}
 }
